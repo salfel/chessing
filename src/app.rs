@@ -6,19 +6,19 @@ use std::{
 use ratatui::{
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     prelude::{Buffer as TBuffer, CrosstermBackend, Rect},
-    widgets::{Paragraph, Widget},
+    widgets::Widget,
     Frame, Terminal,
 };
 
+use crate::board::Board;
+
 pub struct App {
-    exit: bool
+    exit: bool,
 }
 
 impl App {
     pub fn new() -> Self {
-        App {
-            exit: false
-        }
+        App { exit: false }
     }
 
     pub fn run(&mut self, terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<()> {
@@ -37,7 +37,7 @@ impl App {
     fn handle_events(&mut self) -> io::Result<()> {
         if event::poll(Duration::from_millis(10))? {
             match event::read()? {
-                Event::Key(event) if event.kind == KeyEventKind::Press => self.handle_keys(event) ,
+                Event::Key(event) if event.kind == KeyEventKind::Press => self.handle_keys(event),
                 _ => {}
             }
         }
@@ -55,6 +55,6 @@ impl App {
 
 impl Widget for &App {
     fn render(self, area: Rect, buf: &mut TBuffer) {
-        Paragraph::new("hi there").render(area, buf);
+        Board::new().render(area, buf);
     }
 }

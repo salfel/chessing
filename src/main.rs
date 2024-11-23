@@ -1,4 +1,6 @@
 mod app;
+mod board;
+mod state;
 
 use std::io;
 
