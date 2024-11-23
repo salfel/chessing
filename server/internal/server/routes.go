@@ -1,9 +1,9 @@
 package server
 
 import (
+	"context"
 	_ "embed"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -13,9 +13,21 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	mux.HandleFunc("/hello", s.HelloWorldHandler)
 
-	mux.HandleFunc("/migration", s.MigrationHandler)
+	mux.HandleFunc("/game/create", s.handlePostRequest(s.CreateGameHandler))
 
-	return mux
+	mux.HandleFunc("/auth/register", s.handlePostRequest(s.RegisterUser))
+
+	return s.LoginMiddleware(mux)
+}
+
+func (s *Server) handlePostRequest(handlerFunc http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		handlerFunc(w, r)
+	}
 }
 
 func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
@@ -32,15 +44,16 @@ func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Server) MigrationHandler(w http.ResponseWriter, r *http.Request) {
-	if err := s.queries.Migrate(); err != nil {
-		http.Error(w, "Failed to migrate", http.StatusInternalServerError)
-		fmt.Println(err.Error())
+func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+
+	username, _, _ := r.BasicAuth()
+
+	game, err := s.queries.CreateGame(ctx)
+	if err != nil {
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/text")
-	if _, err := w.Write([]byte("success")); err != nil {
-		log.Fatalf("Failed to write response: %v", err)
-	}
+	// _, err := s.queries.create
 }

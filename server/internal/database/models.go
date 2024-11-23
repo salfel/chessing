@@ -4,7 +4,18 @@
 
 package database
 
+import (
+	"database/sql"
+)
+
+type Game struct {
+	ID    int64
+	White sql.NullInt64
+	Black sql.NullInt64
+}
+
 type User struct {
-	ID   int64
-	Name string
+	ID       int64
+	Username string
+	Password string
 }

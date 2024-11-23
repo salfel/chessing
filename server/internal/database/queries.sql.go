@@ -7,60 +7,59 @@ package database
 
 import (
 	"context"
+	"database/sql"
 )
+
+const createGame = `-- name: CreateGame :one
+INSERT INTO games (
+    black, white
+) values (
+    ?, ?
+) 
+RETURNING id, white, black
+`
+
+type CreateGameParams struct {
+	Black sql.NullInt64
+	White sql.NullInt64
+}
+
+func (q *Queries) CreateGame(ctx context.Context, arg CreateGameParams) (Game, error) {
+	row := q.db.QueryRowContext(ctx, createGame, arg.Black, arg.White)
+	var i Game
+	err := row.Scan(&i.ID, &i.White, &i.Black)
+	return i, err
+}
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (
-    name
+    username, password
 ) values (
-    ?
+    ?, ?
 )
-RETURNING id, name
+RETURNING id, username, password
 `
 
-func (q *Queries) CreateUser(ctx context.Context, name string) (User, error) {
-	row := q.db.QueryRowContext(ctx, createUser, name)
+type CreateUserParams struct {
+	Username string
+	Password string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, createUser, arg.Username, arg.Password)
 	var i User
-	err := row.Scan(&i.ID, &i.Name)
+	err := row.Scan(&i.ID, &i.Username, &i.Password)
 	return i, err
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, name FROM users 
-WHERE id = ? LIMIT 1
+SELECT id, username, password FROM users 
+WHERE username = ? LIMIT 1
 `
 
-func (q *Queries) GetUser(ctx context.Context, id int64) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUser, id)
+func (q *Queries) GetUser(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUser, username)
 	var i User
-	err := row.Scan(&i.ID, &i.Name)
+	err := row.Scan(&i.ID, &i.Username, &i.Password)
 	return i, err
-}
-
-const getUsers = `-- name: GetUsers :many
-SELECT id, name FROM users
-ORDER BY name
-`
-
-func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
-	rows, err := q.db.QueryContext(ctx, getUsers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []User
-	for rows.Next() {
-		var i User
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
