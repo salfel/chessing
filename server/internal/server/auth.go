@@ -3,13 +3,15 @@ package server
 import (
 	"chessing/internal/database"
 	"context"
-	"crypto/rand"
-	"encoding/base64"
 	"encoding/json"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
+
+type contextKey string
+
+const userContextKey contextKey = "user"
 
 func (s *Server) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
@@ -40,9 +42,9 @@ func (s *Server) RegisterUser(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) LoginMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.Background()
+		ctx := r.Context()
 
-		if r.URL.Path == "/auth/register" || r.URL.Path == "/migration" {
+		if r.URL.Path == "/auth/register" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -64,22 +66,8 @@ func (s *Server) LoginMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		ctx = context.WithValue(r.Context(), userContextKey, user)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-}
-
-func generateSecret(length int) (string, error) {
-	secret := make([]byte, length)
-
-	_, err := rand.Read(secret)
-	if err != nil {
-		return "", err
-	}
-
-	hashedSecret, err := bcrypt.GenerateFromPassword(secret, bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-
-	return base64.StdEncoding.EncodeToString(hashedSecret), nil
 }

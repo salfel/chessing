@@ -10,10 +10,19 @@ INSERT INTO users (
 )
 RETURNING *;
 
--- name: CreateGame :one
+-- name: CreateGame :exec
 INSERT INTO games (
     black, white
 ) values (
     ?, ?
 ) 
 RETURNING *;
+
+-- name: JoinGame :exec
+UPDATE games 
+SET white = sqlc.arg('white'), black = sqlc.arg('black')
+WHERE id = sqlc.arg('id');
+
+-- name: GetGame :one
+SELECT * FROM games
+WHERE id = ?;
