@@ -5,7 +5,7 @@ import (
 	_ "embed"
 )
 
-//go:embed schema.sql
+//go:embed config/schema.sql
 var dll string
 
 func (q *Queries) Migrate() error {
