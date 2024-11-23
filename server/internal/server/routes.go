@@ -3,6 +3,7 @@ package server
 import (
 	_ "embed"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 )
@@ -34,6 +35,7 @@ func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 func (s *Server) MigrationHandler(w http.ResponseWriter, r *http.Request) {
 	if err := s.queries.Migrate(); err != nil {
 		http.Error(w, "Failed to migrate", http.StatusInternalServerError)
+		fmt.Println(err.Error())
 		return
 	}
 
