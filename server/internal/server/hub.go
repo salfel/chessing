@@ -1,19 +1,27 @@
 package server
 
 type Hub struct {
-	clients map[*Client]bool
+	server *Server
 
-	broadcast  chan []byte
+	clients map[*Client]*Board
+
+	broadcast  chan Message
 	register   chan *Client
 	unregister chan *Client
 }
 
-func newHub() *Hub {
+type Message struct {
+	content string
+	client  *Client
+}
+
+func newHub(server *Server) *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan Message),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[*Client]bool),
+		clients:    make(map[*Client]*Board),
+		server:     server,
 	}
 }
 
@@ -21,21 +29,14 @@ func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
-			h.clients[client] = true
+			h.clients[client] = nil
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)
 				close(client.send)
 			}
 		case message := <-h.broadcast:
-			for client := range h.clients {
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(h.clients, client)
-				}
-			}
+			h.server.RouteWebsockets(message)
 		}
 	}
 }

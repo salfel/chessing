@@ -53,7 +53,7 @@ func (c *Client) readPump() {
 		}
 
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.hub.broadcast <- message
+		c.hub.broadcast <- Message{client: c, content: string(message)}
 	}
 }
 
@@ -109,7 +109,4 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 
 	go client.readPump()
 	go client.writePump()
-
-	go func() {
-	}()
 }

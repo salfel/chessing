@@ -17,17 +17,17 @@ type Server struct {
 }
 
 func NewServer(db *sql.DB) *http.Server {
-	hub := newHub()
-
-	go hub.run()
-
 	newServer := Server{
 		port:    8000,
 		db:      db,
 		queries: database.New(db),
 		games:   map[string]Game{},
-		hub:     hub,
 	}
+
+	hub := newHub(&newServer)
+	newServer.hub = hub
+
+	go hub.run()
 
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%d", newServer.port),
