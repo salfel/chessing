@@ -4,24 +4,20 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
-
-	"chessing/internal/database"
 )
 
 type Server struct {
-	port    int
-	db      *sql.DB
-	queries *database.Queries
-	games   map[string]Game
-	hub     *Hub
+	port  int
+	db    *sql.DB
+	games map[string]*Game
+	hub   *Hub
 }
 
 func NewServer(db *sql.DB) *http.Server {
 	newServer := Server{
-		port:    8000,
-		db:      db,
-		queries: database.New(db),
-		games:   map[string]Game{},
+		port:  8000,
+		db:    db,
+		games: map[string]*Game{},
 	}
 
 	hub := newHub(&newServer)

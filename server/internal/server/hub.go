@@ -3,7 +3,7 @@ package server
 type Hub struct {
 	server *Server
 
-	clients map[*Client]*Board
+	clients map[*Client]bool
 
 	broadcast  chan Message
 	register   chan *Client
@@ -20,7 +20,7 @@ func newHub(server *Server) *Hub {
 		broadcast:  make(chan Message),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[*Client]*Board),
+		clients:    make(map[*Client]bool),
 		server:     server,
 	}
 }
@@ -29,7 +29,7 @@ func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
-			h.clients[client] = nil
+			h.clients[client] = true
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
 				delete(h.clients, client)

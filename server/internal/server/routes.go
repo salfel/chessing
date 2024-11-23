@@ -25,15 +25,12 @@ type WebsocketHandlerFunc = func(string, *Client)
 func (s *Server) RouteWebsockets(message Message) {
 	r := WebsocketRouter{client: message.client, message: message.content}
 
-	r.HandleFunc("create game:", s.createGame)
+	r.HandleFunc("create game: ", s.createGame)
+	r.HandleFunc("join game: ", s.joinGame)
 }
 
 func (r *WebsocketRouter) HandleFunc(path string, handler WebsocketHandlerFunc) {
 	if strings.HasPrefix(r.message, path) {
 		handler(strings.TrimPrefix(r.message, path), r.client)
 	}
-}
-
-func (s *Server) createGame(message string, client *Client) {
-	client.send <- []byte(message)
 }
