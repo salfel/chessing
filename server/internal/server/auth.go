@@ -14,7 +14,7 @@ type contextKey string
 const userContextKey contextKey = "user"
 
 func (s *Server) RegisterUser(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
+	ctx := r.Context()
 
 	var req struct {
 		Username string `json:"username"`
@@ -24,6 +24,12 @@ func (s *Server) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	user, err := s.queries.GetUser(ctx, req.Username)
+	if err == nil && user != (database.User{}) {
+		http.Error(w, "User already exists", http.StatusConflict)
 		return
 	}
 
