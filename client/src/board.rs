@@ -26,14 +26,22 @@ impl StatefulWidget for Board {
 
                 block.render(area, buf);
 
-                let char = char::from_u32(x as u32 + 65).expect("Isn't a valid char");
-                match state.get_piece(char, y + 1) {
-                    Some(char) => {
-                        area.x += 1;
-                        area.width = 1;
-                        Span::from(char).render(area, buf);
+                if state.status != Status::Waiting {
+                    let number = match state.color {
+                        Some(Color::Black) => 8 - y,
+                        Some(Color::White) => y + 1,
+                        None => panic!("color is none"),
+                    };
+
+                    let char = char::from_u32(x as u32 + 65).expect("Isn't a valid char");
+                    match state.get_piece(char, number) {
+                        Some(char) => {
+                            area.x += 1;
+                            area.width = 1;
+                            Span::from(char).render(area, buf);
+                        }
+                        None => {}
                     }
-                    None => {}
                 }
 
                 color = color.switch();
