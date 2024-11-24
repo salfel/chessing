@@ -52,7 +52,7 @@ func (s *Server) createGame(message string, client *Client) {
 
 	s.games[token] = newGame(client)
 
-	client.send <- token
+	client.send <- fmt.Sprintf("token: %s", token)
 }
 
 func (s *Server) joinGame(message string, client *Client) {
