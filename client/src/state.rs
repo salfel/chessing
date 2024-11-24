@@ -1,7 +1,9 @@
 use std::{collections::HashMap, fmt::Display};
 
+use crate::piece::Piece;
+
 pub struct State {
-    pub pieces: HashMap<Position, char>,
+    pub pieces: HashMap<Position, Piece>,
     pub color: Option<Color>,
     pub code: String,
     pub turn: Color,
@@ -25,21 +27,23 @@ impl State {
         let data = Self::from_json(pieces).unwrap();
         let mut pieces = HashMap::new();
 
-        for (position, char) in data.into_iter() {
-            let char = char
-                .as_str()
-                .expect("Expected a string as piece char")
-                .chars()
-                .next()
-                .expect("Expected at least one char");
+        for (position, piece) in data.into_iter() {
+            let color = piece.get("color").expect("color does not exist on piece");
+            let variant = piece
+                .get("variant")
+                .expect("variant does not exist on piece");
 
-            pieces.insert(Position::new(position), char);
+            let piece = Piece::new(color, variant);
+            let position = Position::new(position);
+            pieces.insert(position, piece);
         }
 
         self.pieces = pieces;
     }
 
-    fn from_json(json: &str) -> Result<HashMap<String, serde_json::Value>, serde_json::Error> {
+    fn from_json(
+        json: &str,
+    ) -> Result<HashMap<String, HashMap<String, String>>, serde_json::Error> {
         serde_json::from_str(json)
     }
 
@@ -48,7 +52,7 @@ impl State {
 
         self.pieces
             .get(&Position::new(position))
-            .map(|char| char.to_string())
+            .map(|piece| piece.to_char().to_string())
     }
 }
 
