@@ -15,6 +15,11 @@ type Game struct {
 	Board Board
 }
 
+func (g *Game) send(message string) {
+	g.White.send <- message
+	g.Black.send <- message
+}
+
 func (c *Client) newGame() *Game {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)
@@ -109,12 +114,10 @@ func (s *Server) sendState(game *Game) {
 		return
 	}
 
-	game.White.send <- "starting:"
-	game.Black.send <- "starting:"
+	game.send("starting:")
 
 	game.White.send <- "color: white"
 	game.Black.send <- "color: black"
 
-	game.Black.send <- fmt.Sprintf("state: %s", jsonPieces)
-	game.White.send <- fmt.Sprintf("state: %s", jsonPieces)
+	game.send(fmt.Sprintf("state: %s", jsonPieces))
 }
