@@ -1,8 +1,9 @@
 use ratatui::{
+    layout::{Constraint, Direction, Layout},
     prelude::{Buffer, Rect},
     style::Stylize,
     text::Span,
-    widgets::{Block, List, ListItem, StatefulWidget, Widget},
+    widgets::{Block, Paragraph, StatefulWidget, Widget},
 };
 
 use crate::state::State;
@@ -29,10 +30,8 @@ impl Board {
     }
 }
 
-impl StatefulWidget for Board {
-    type State = State;
-
-    fn render<'a>(self, area: Rect, buf: &mut Buffer, state: &'a mut Self::State) {
+impl Board {
+    fn render_board<'a>(self, area: Rect, buf: &mut Buffer, state: &'a mut State) {
         let mut color = BoardColor::White;
 
         for y in 0..8 {
@@ -59,6 +58,32 @@ impl StatefulWidget for Board {
             let char = char::from_u32((x + 65) as u32).unwrap();
 
             Span::from(format!(" {} ", char)).render(area, buf);
+        }
+    }
+
+    fn render_waiting<'a>(self, area: Rect, buf: &mut Buffer, state: &'a mut State) {
+        let layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![Constraint::Length(3), Constraint::Length(3)])
+            .split(area);
+
+        Paragraph::new("Waiting for opponent")
+            .centered()
+            .render(layout[0], buf);
+        Paragraph::new(format!("Code: {}", state.code))
+            .centered()
+            .render(layout[1], buf);
+    }
+}
+
+impl StatefulWidget for Board {
+    type State = State;
+
+    fn render<'a>(self, area: Rect, buf: &mut Buffer, state: &'a mut Self::State) {
+        if state.pieces.is_some() {
+            self.render_board(area, buf, state);
+        } else {
+            self.render_waiting(area, buf, state);
         }
     }
 }

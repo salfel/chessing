@@ -16,7 +16,10 @@ use ratatui::{
 };
 use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 
-use crate::{board::Board, state::State};
+use crate::{
+    board::Board,
+    state::{Color, State},
+};
 
 type SocketWriter = futures_util::stream::SplitSink<
     tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>,
@@ -112,6 +115,16 @@ impl App {
 
     async fn on_message(&mut self, message: String) {
         let mut state = self.state.lock().await;
-        //state.pieces.push(message);
+
+        let splitted: Vec<String> = message.splitn(2, ':').map(String::from).collect();
+        let command = splitted.get(0).unwrap();
+        let details = splitted.get(1).map_or("", |value| value).trim();
+
+        match command.as_str() {
+            "state" => state.parse_pieces(details),
+            "color" => state.color = Some(Color::new(details)),
+            "token" => state.code = details.to_string(),
+            _ => println!("{}", message),
+        }
     }
 }
