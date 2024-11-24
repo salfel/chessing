@@ -1,8 +1,9 @@
+use std::sync::Arc;
+use tokio::sync::Mutex;
+
 use ratatui::{
     prelude::{Buffer, Rect},
-    style::Stylize,
-    text::Span,
-    widgets::{Block, StatefulWidget, Widget},
+    widgets::{List, ListItem, StatefulWidget, Widget},
 };
 
 use crate::state::State;
@@ -32,7 +33,16 @@ impl Board {
 impl StatefulWidget for Board {
     type State = State;
 
-    fn render(self, area: Rect, buf: &mut Buffer, state: &mut Self::State) {}
+    fn render<'a>(self, area: Rect, buf: &mut Buffer, state: &'a mut Self::State) {
+        let items: Vec<ListItem> = state
+            .pieces
+            .iter()
+            .map(|piece| ListItem::new(piece.to_string()))
+            .collect();
+
+        let list = List::new(items);
+        Widget::render(list, area, buf);
+    }
 
     //fn render(self, area: Rect, buf: &mut Buffer) {
     //    let mut color = BoardColor::White;

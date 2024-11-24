@@ -4,4 +4,10 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+crossterm = { version = "0.28.1", features = ["event-stream"]}
+futures-channel = "0.3.31"
+futures-util = "0.3.31"
 ratatui = "0.29.0"
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = "*"
+url = "2.5.4"

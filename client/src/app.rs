@@ -1,60 +1,89 @@
 use std::{
     io::{self, Stdout},
+    sync::Arc,
     time::Duration,
 };
 
+use crossterm::event::{KeyCode, KeyEventKind};
+use tokio::sync::Mutex;
+
+use futures_util::{stream::StreamExt, SinkExt};
 use ratatui::{
-    crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
-    prelude::{Buffer as TBuffer, CrosstermBackend, Rect},
-    widgets::Widget,
+    crossterm::event::{Event, EventStream},
+    prelude::CrosstermBackend,
+    widgets::StatefulWidget,
     Frame, Terminal,
 };
+use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 
-use crate::board::Board;
+use crate::{board::Board, state::State};
 
 pub struct App {
-    exit: bool,
+    should_quit: bool,
+    state: Arc<Mutex<State>>,
 }
 
 impl App {
+    const FPS: f32 = 60.0;
+
     pub fn new() -> Self {
-        App { exit: false }
-    }
-
-    pub fn run(&mut self, terminal: &mut Terminal<CrosstermBackend<Stdout>>) -> io::Result<()> {
-        while !self.exit {
-            terminal.draw(|frame| self.render_frame(frame))?;
-            self.handle_events()?;
+        App {
+            should_quit: false,
+            state: Arc::new(Mutex::new(State::new())),
         }
-
-        Ok(())
     }
 
-    fn render_frame(&mut self, frame: &mut Frame) {
-        self.render(frame.area(), frame.buffer_mut());
-    }
+    pub async fn run(
+        mut self,
+        terminal: &mut Terminal<CrosstermBackend<Stdout>>,
+    ) -> io::Result<()> {
+        let url = "ws://localhost:8000/game";
+        let (ws_stream, _) = connect_async(url).await.expect("Failed to connect");
+        let (mut write, read) = ws_stream.split();
 
-    fn handle_events(&mut self) -> io::Result<()> {
-        if event::poll(Duration::from_millis(10))? {
-            match event::read()? {
-                Event::Key(event) if event.kind == KeyEventKind::Press => self.handle_keys(event),
-                _ => {}
+        write
+            .send(Message::text("create game: "))
+            .await
+            .expect("Failed to send message");
+
+        let mut read = read.fuse();
+        let period = Duration::from_secs_f32(1.0 / Self::FPS);
+        let mut interval = tokio::time::interval(period);
+        let mut events = EventStream::new();
+
+        while !self.should_quit {
+            tokio::select! {
+                _ = interval.tick() => {
+                    let mut state = self.state.lock().await;
+                    terminal.draw(|frame| self.draw(frame, &mut state))?;
+                },
+                Some(Ok(event)) = events.next() => {self.handle_event(event); },
+                Some(Ok(message)) = read.next() => {
+                    self.on_message(message.to_string()).await;
+                }
             }
         }
 
         Ok(())
     }
 
-    fn handle_keys(&mut self, event: KeyEvent) {
-        match event.code {
-            KeyCode::Char('q') => self.exit = true,
-            _ => {}
+    fn draw(&self, frame: &mut Frame, state: &mut State) {
+        Board::new().render(frame.area(), frame.buffer_mut(), state);
+    }
+
+    fn handle_event(&mut self, event: Event) {
+        if let Event::Key(key) = event {
+            if key.kind == KeyEventKind::Press {
+                match key.code {
+                    KeyCode::Char('q') => self.should_quit = true,
+                    _ => {}
+                }
+            }
         }
     }
-}
 
-impl Widget for &App {
-    fn render(self, area: Rect, buf: &mut TBuffer) {
-        Board::new().render(area, buf);
+    async fn on_message(&mut self, message: String) {
+        let mut state = self.state.lock().await;
+        state.pieces.push(message);
     }
 }
