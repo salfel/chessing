@@ -50,10 +50,6 @@ func newBoard() Board {
 	pieces[Field{x: 3, y: 8}] = BLACKQUEEN
 	pieces[Field{x: 4, y: 8}] = BLACKKING
 
-	for field, piece := range pieces {
-		fmt.Printf("%s = %c\n", field.String(), piece.variant)
-	}
-
 	return Board{
 		pieces: pieces,
 	}
