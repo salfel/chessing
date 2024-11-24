@@ -15,7 +15,7 @@ type Game struct {
 	Board Board
 }
 
-func newGame(client *Client) *Game {
+func (c *Client) newGame() *Game {
 	source := rand.NewSource(time.Now().UnixNano())
 	random := rand.New(source)
 	randomValue := random.Intn(2)
@@ -23,12 +23,28 @@ func newGame(client *Client) *Game {
 	game := Game{Board: newBoard()}
 
 	if randomValue == 0 {
-		game.White = client
+		game.White = c
 	} else {
-		game.Black = client
+		game.Black = c
 	}
 
 	return &game
+}
+
+func (c *Client) leaveGame(game *Game) {
+	var opponent *Client
+
+	if c == game.White {
+		game.White = nil
+		opponent = game.Black
+	} else if c == game.Black {
+		game.Black = nil
+		opponent = game.White
+	} else {
+		return
+	}
+
+	opponent.send <- "opponent left game:"
 }
 
 func (g *Game) getOpponent(client *Client) *Client {
@@ -50,7 +66,9 @@ func (s *Server) createGame(message string, client *Client) {
 
 	token := hex.EncodeToString(randomBytes)
 
-	s.games[token] = newGame(client)
+	game := client.newGame()
+	s.games[token] = game
+	s.hub.clients[client] = game
 
 	client.send <- fmt.Sprintf("code: %s", token)
 }
@@ -70,6 +88,8 @@ func (s *Server) joinGame(message string, client *Client) {
 		client.send <- "game full"
 		return
 	}
+
+	s.hub.clients[client] = game
 
 	s.sendState(game)
 }
