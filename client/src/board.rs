@@ -6,23 +6,9 @@ use ratatui::{
     widgets::{Block, Paragraph, StatefulWidget, Widget},
 };
 
-use crate::state::State;
+use crate::state::{Color, State};
 
 pub struct Board {}
-
-enum BoardColor {
-    Black,
-    White,
-}
-
-impl BoardColor {
-    fn switch(self) -> BoardColor {
-        match self {
-            BoardColor::Black => BoardColor::White,
-            BoardColor::White => BoardColor::Black,
-        }
-    }
-}
 
 impl Board {
     pub fn new() -> Board {
@@ -32,23 +18,39 @@ impl Board {
 
 impl Board {
     fn render_board<'a>(self, area: Rect, buf: &mut Buffer, state: &'a mut State) {
-        let mut color = BoardColor::White;
+        let mut color = state.color.expect("color is none");
 
         for y in 0..8 {
+            let number = match state.color {
+                Some(Color::Black) => 8 - y,
+                Some(Color::White) => y + 1,
+                None => panic!("color is none"),
+            };
+
             for x in 0..8 {
-                let area = Rect::new(area.x + x * 3 + 2, area.y + y, 3, 1);
+                let mut area = Rect::new(area.x + x * 3 + 2, area.y + y, 3, 1);
                 let block = match color {
-                    BoardColor::Black => Block::new().on_black(),
-                    BoardColor::White => Block::new().on_white(),
+                    Color::Black => Block::new().on_black(),
+                    Color::White => Block::new().on_white(),
                 };
 
                 block.render(area, buf);
+
+                let char = char::from_u32(x as u32 + 65).expect("Isn't a valid char");
+                match state.get_piece(char, y + 1) {
+                    Some(char) => {
+                        area.x += 1;
+                        area.width = 1;
+                        Span::from(char).render(area, buf);
+                    }
+                    None => {}
+                }
 
                 color = color.switch();
             }
 
             let area = Rect::new(area.x, area.y + y, 1, 1);
-            Span::from((8 - y).to_string()).render(area, buf);
+            Span::from(number.to_string()).render(area, buf);
 
             color = color.switch();
         }
