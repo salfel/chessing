@@ -3,6 +3,8 @@ package server
 import (
 	crypto "crypto/rand"
 	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -69,8 +71,25 @@ func (s *Server) joinGame(message string, client *Client) {
 		return
 	}
 
-	opponent := game.getOpponent(client)
-	opponent.send <- []byte("somebody joined your game")
+	s.sendState(game)
+}
 
-	client.send <- []byte("joined gamed")
+func (s *Server) sendState(game *Game) {
+	pieces := map[string]string{}
+
+	for field, piece := range game.Board.pieces {
+		pieces[field.String()] = string(piece.variant)
+	}
+
+	jsonPieces, err := json.Marshal(pieces)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	game.White.send <- []byte("color: white")
+	game.Black.send <- []byte("color: black")
+
+	game.Black.send <- []byte(fmt.Sprintf("state: %s", jsonPieces))
+	game.White.send <- []byte(fmt.Sprintf("state: %s", jsonPieces))
 }
