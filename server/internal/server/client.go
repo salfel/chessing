@@ -31,7 +31,7 @@ type Client struct {
 	hub *Hub
 
 	conn *websocket.Conn
-	send chan []byte
+	send chan string
 }
 
 func (c *Client) readPump() {
@@ -77,12 +77,12 @@ func (c *Client) writePump() {
 			if err != nil {
 				return
 			}
-			w.Write(message)
+			w.Write([]byte(message))
 
 			n := len(c.send)
 			for i := 0; i < n; i++ {
 				w.Write(newline)
-				w.Write(<-c.send)
+				w.Write([]byte(<-c.send))
 			}
 
 			if err := w.Close(); err != nil {
@@ -104,7 +104,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, conn: conn, send: make(chan string)}
 	client.hub.register <- client
 
 	go client.readPump()

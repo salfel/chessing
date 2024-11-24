@@ -52,13 +52,13 @@ func (s *Server) createGame(message string, client *Client) {
 
 	s.games[token] = newGame(client)
 
-	client.send <- []byte(token)
+	client.send <- token
 }
 
 func (s *Server) joinGame(message string, client *Client) {
 	game, ok := s.games[message]
 	if !ok {
-		client.send <- []byte("not found")
+		client.send <- "not found"
 		return
 	}
 
@@ -67,7 +67,7 @@ func (s *Server) joinGame(message string, client *Client) {
 	} else if game.White == nil {
 		game.White = client
 	} else {
-		client.send <- []byte("game full")
+		client.send <- "game full"
 		return
 	}
 
@@ -87,9 +87,9 @@ func (s *Server) sendState(game *Game) {
 		return
 	}
 
-	game.White.send <- []byte("color: white")
-	game.Black.send <- []byte("color: black")
+	game.White.send <- "color: white"
+	game.Black.send <- "color: black"
 
-	game.Black.send <- []byte(fmt.Sprintf("state: %s", jsonPieces))
-	game.White.send <- []byte(fmt.Sprintf("state: %s", jsonPieces))
+	game.Black.send <- fmt.Sprintf("state: %s", jsonPieces)
+	game.White.send <- fmt.Sprintf("state: %s", jsonPieces)
 }
