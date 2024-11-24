@@ -5,7 +5,7 @@ use std::{
 };
 
 use crossterm::event::{KeyCode, KeyEventKind};
-use tokio::sync::Mutex;
+use tokio::{net::TcpStream, sync::Mutex, time};
 
 use futures_util::{stream::StreamExt, SinkExt};
 use ratatui::{
@@ -15,11 +15,15 @@ use ratatui::{
     widgets::StatefulWidget,
     Frame, Terminal,
 };
-use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
+use tokio_tungstenite::{
+    connect_async,
+    tungstenite::protocol::{frame::coding::CloseCode, CloseFrame, Message},
+    MaybeTlsStream, WebSocketStream,
+};
 
 use crate::{
     board::Board,
-    state::{Color, State},
+    state::{Color, State, Status},
     stats::Stats,
 };
 
@@ -42,7 +46,6 @@ struct SocketStream {
 }
 
 pub struct App {
-    should_quit: bool,
     state: Arc<Mutex<State>>,
     stream: SocketStream,
 }
@@ -54,7 +57,6 @@ impl App {
         let stream = Self::init_socket().await;
 
         App {
-            should_quit: false,
             state: Arc::new(Mutex::new(State::new())),
             stream,
         }
@@ -68,13 +70,13 @@ impl App {
         let mut interval = tokio::time::interval(period);
         let mut events = EventStream::new();
 
-        while !self.should_quit {
+        while !self.state.lock().await.should_quit {
             tokio::select! {
                 _ = interval.tick() => {
                     let mut state = self.state.lock().await;
                     terminal.draw(|frame| self.draw(frame, &mut state))?;
                 },
-                Some(Ok(event)) = events.next() => {self.handle_event(event); },
+                Some(Ok(event)) = events.next() => {self.handle_event(event).await; },
                 Some(Ok(message)) = self.stream.reader.next() => {
                     self.on_message(message.to_string()).await;
                 }
@@ -110,11 +112,11 @@ impl App {
         Stats::default().render(layout[1], frame.buffer_mut(), state);
     }
 
-    fn handle_event(&mut self, event: Event) {
+    async fn handle_event(&mut self, event: Event) {
         if let Event::Key(key) = event {
             if key.kind == KeyEventKind::Press {
                 match key.code {
-                    KeyCode::Char('q') => self.should_quit = true,
+                    KeyCode::Char('q') => self.state.lock().await.should_quit = true,
                     _ => {}
                 }
             }
@@ -129,9 +131,28 @@ impl App {
         let details = splitted.get(1).map_or("", |value| value).trim();
 
         match command.as_str() {
+            "starting" => state.status = Status::Playing,
             "state" => state.parse_pieces(details),
             "color" => state.color = Some(Color::new(details)),
             "code" => state.code = details.to_string(),
+            "opponent left game" => {
+                state.status = Status::Leaving;
+                self.stream
+                    .writer
+                    .send(Message::Close(Some(CloseFrame {
+                        code: CloseCode::Normal,
+                        reason: "Game ended".into(),
+                    })))
+                    .await
+                    .unwrap();
+
+                let cloned_state = self.state.clone();
+                tokio::spawn(async move {
+                    time::sleep(Duration::from_secs(5)).await;
+
+                    cloned_state.lock().await.should_quit = true;
+                });
+            }
             _ => println!("{}", message),
         }
     }

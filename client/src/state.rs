@@ -5,6 +5,8 @@ pub struct State {
     pub color: Option<Color>,
     pub code: String,
     pub turn: Color,
+    pub status: Status,
+    pub should_quit: bool,
 }
 
 impl State {
@@ -14,6 +16,8 @@ impl State {
             color: None,
             code: String::new(),
             turn: Color::White,
+            status: Status::Waiting,
+            should_quit: false,
         }
     }
 
@@ -46,6 +50,13 @@ impl State {
             .get(&Position::new(position))
             .map(|char| char.to_string())
     }
+}
+
+#[derive(PartialEq, Eq)]
+pub enum Status {
+    Waiting,
+    Playing,
+    Leaving,
 }
 
 #[derive(Hash, Eq, PartialEq)]

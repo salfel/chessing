@@ -5,7 +5,7 @@ use ratatui::{
     widgets::{Block, StatefulWidget, Widget},
 };
 
-use crate::state::{Color, State};
+use crate::state::{Color, State, Status};
 
 #[derive(Default)]
 pub struct Board {}
@@ -39,7 +39,7 @@ impl StatefulWidget for Board {
                 color = color.switch();
             }
 
-            if state.color.is_some() {
+            if state.status != Status::Waiting {
                 let number = match state.color {
                     Some(Color::White) => 8 - y,
                     Some(Color::Black) => y + 1,
@@ -53,7 +53,7 @@ impl StatefulWidget for Board {
             color = color.switch();
         }
 
-        if state.color.is_some() {
+        if state.status != Status::Waiting {
             for x in 0..8 {
                 let area = Rect::new(area.x + x * 3 + 2, area.y + 8, 3, 1);
                 let char = char::from_u32((x + 65) as u32).unwrap();

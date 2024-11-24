@@ -3,7 +3,7 @@ use ratatui::{
     widgets::{Paragraph, StatefulWidget, Widget},
 };
 
-use crate::state::State;
+use crate::state::{State, Status};
 
 #[derive(Default)]
 pub struct Stats {}
@@ -21,6 +21,16 @@ impl Stats {
 
         Paragraph::new("Waiting for opponent").render(layout[0], buf);
         Paragraph::new(format!("Code: {}", state.code)).render(layout[1], buf);
+    }
+
+    fn render_leaving(area: ratatui::prelude::Rect, buf: &mut ratatui::prelude::Buffer) {
+        let layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![Constraint::Length(2), Constraint::Length(2)])
+            .split(area);
+
+        Paragraph::new("Opponent left the game").render(layout[0], buf);
+        Paragraph::new("Leaving soon").render(layout[1], buf);
     }
 
     fn render_stateful(
@@ -52,10 +62,10 @@ impl StatefulWidget for Stats {
         buf: &mut ratatui::prelude::Buffer,
         state: &mut Self::State,
     ) {
-        if state.color.is_none() {
-            Self::render_empty(area, buf, state);
-        } else {
-            Self::render_stateful(area, buf, state);
+        match state.status {
+            Status::Waiting => Self::render_empty(area, buf, state),
+            Status::Playing => Self::render_stateful(area, buf, state),
+            Status::Leaving => Self::render_leaving(area, buf),
         }
     }
 }

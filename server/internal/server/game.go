@@ -35,16 +35,18 @@ func (c *Client) leaveGame(game *Game) {
 	var opponent *Client
 
 	if c == game.White {
-		game.White = nil
 		opponent = game.Black
+		game.White = nil
 	} else if c == game.Black {
-		game.Black = nil
 		opponent = game.White
+		game.Black = nil
 	} else {
 		return
 	}
 
-	opponent.send <- "opponent left game:"
+	if opponent != nil {
+		opponent.send <- "opponent left game:"
+	}
 }
 
 func (g *Game) getOpponent(client *Client) *Client {
@@ -106,6 +108,9 @@ func (s *Server) sendState(game *Game) {
 		fmt.Println(err)
 		return
 	}
+
+	game.White.send <- "starting:"
+	game.Black.send <- "starting:"
 
 	game.White.send <- "color: white"
 	game.Black.send <- "color: black"
