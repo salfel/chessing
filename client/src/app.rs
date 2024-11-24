@@ -5,7 +5,7 @@ use std::{
 };
 
 use crossterm::event::{KeyCode, KeyEventKind};
-use tokio::{net::TcpStream, sync::Mutex, time};
+use tokio::{sync::Mutex, time};
 
 use futures_util::{stream::StreamExt, SinkExt};
 use ratatui::{
@@ -18,7 +18,6 @@ use ratatui::{
 use tokio_tungstenite::{
     connect_async,
     tungstenite::protocol::{frame::coding::CloseCode, CloseFrame, Message},
-    MaybeTlsStream, WebSocketStream,
 };
 
 use crate::{
@@ -83,6 +82,8 @@ impl App {
             }
         }
 
+        self.close_socket().await;
+
         Ok(())
     }
 
@@ -100,6 +101,17 @@ impl App {
             writer: write,
             reader: read.fuse(),
         }
+    }
+
+    async fn close_socket(&mut self) {
+        self.stream
+            .writer
+            .send(Message::Close(Some(CloseFrame {
+                code: CloseCode::Normal,
+                reason: "Game ended".into(),
+            })))
+            .await
+            .unwrap();
     }
 
     fn draw(&self, frame: &mut Frame, state: &mut State) {
@@ -137,14 +149,6 @@ impl App {
             "code" => state.code = details.to_string(),
             "opponent left game" => {
                 state.status = Status::Leaving;
-                self.stream
-                    .writer
-                    .send(Message::Close(Some(CloseFrame {
-                        code: CloseCode::Normal,
-                        reason: "Game ended".into(),
-                    })))
-                    .await
-                    .unwrap();
 
                 let cloned_state = self.state.clone();
                 tokio::spawn(async move {
