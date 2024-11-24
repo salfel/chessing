@@ -1,6 +1,7 @@
 mod app;
 mod board;
 mod state;
+mod stats;
 
 use std::io;
 

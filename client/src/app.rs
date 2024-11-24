@@ -10,6 +10,7 @@ use tokio::sync::Mutex;
 use futures_util::{stream::StreamExt, SinkExt};
 use ratatui::{
     crossterm::event::{Event, EventStream},
+    layout::{Constraint, Direction, Layout},
     prelude::CrosstermBackend,
     widgets::StatefulWidget,
     Frame, Terminal,
@@ -19,6 +20,7 @@ use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
 use crate::{
     board::Board,
     state::{Color, State},
+    stats::Stats,
 };
 
 type SocketWriter = futures_util::stream::SplitSink<
@@ -88,7 +90,7 @@ impl App {
         let (mut write, read) = ws_stream.split();
 
         write
-            .send(Message::text("create game: "))
+            .send(Message::text("create game:  test"))
             .await
             .expect("Failed to send message");
 
@@ -99,7 +101,13 @@ impl App {
     }
 
     fn draw(&self, frame: &mut Frame, state: &mut State) {
-        Board::new().render(frame.area(), frame.buffer_mut(), state);
+        let layout = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints(vec![Constraint::Length(30), Constraint::Min(1)])
+            .split(frame.area());
+
+        Board::default().render(layout[0], frame.buffer_mut(), state);
+        Stats::default().render(layout[1], frame.buffer_mut(), state);
     }
 
     fn handle_event(&mut self, event: Event) {
@@ -123,7 +131,7 @@ impl App {
         match command.as_str() {
             "state" => state.parse_pieces(details),
             "color" => state.color = Some(Color::new(details)),
-            "token" => state.code = details.to_string(),
+            "code" => state.code = details.to_string(),
             _ => println!("{}", message),
         }
     }

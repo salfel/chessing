@@ -1,17 +1,19 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::Display};
 
 pub struct State {
-    pub pieces: Option<HashMap<Position, char>>,
+    pub pieces: HashMap<Position, char>,
     pub color: Option<Color>,
     pub code: String,
+    pub turn: Color,
 }
 
 impl State {
     pub fn new() -> State {
         State {
-            pieces: None,
+            pieces: HashMap::new(),
             color: None,
             code: String::new(),
+            turn: Color::White,
         }
     }
 
@@ -30,7 +32,7 @@ impl State {
             pieces.insert(Position::new(position), char);
         }
 
-        self.pieces = Some(pieces);
+        self.pieces = pieces;
     }
 
     fn from_json(json: &str) -> Result<HashMap<String, serde_json::Value>, serde_json::Error> {
@@ -41,8 +43,6 @@ impl State {
         let position = format!("{}{}", x, y);
 
         self.pieces
-            .as_ref()
-            .expect("Hashmap not populated")
             .get(&Position::new(position))
             .map(|char| char.to_string())
     }
@@ -71,6 +71,16 @@ impl Position {
 pub enum Color {
     White,
     Black,
+}
+
+impl Display for Color {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let color_str = match self {
+            Color::White => "white",
+            Color::Black => "black",
+        };
+        write!(f, "{}", color_str)
+    }
 }
 
 impl Color {
