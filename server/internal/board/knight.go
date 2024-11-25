@@ -21,7 +21,7 @@ func (k *Knight) GetPosition() Position {
 	return k.Position
 }
 
-func (k *Knight) CanMove(position Position) bool {
+func (k *Knight) CanMove(position Position, board *Board) bool {
 	return false
 }
 

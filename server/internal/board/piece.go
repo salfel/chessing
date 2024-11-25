@@ -10,7 +10,7 @@ type Piece interface {
 	GetColor() string
 	GetName() string
 	GetPosition() Position
-	CanMove(Position) bool
+	CanMove(Position, *Board) bool
 	Move(Position)
 }
 

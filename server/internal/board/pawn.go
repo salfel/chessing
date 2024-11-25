@@ -21,8 +21,12 @@ func (p *Pawn) GetPosition() Position {
 	return p.Position
 }
 
-func (p *Pawn) CanMove(position Position) bool {
+func (p *Pawn) CanMove(position Position, board *Board) bool {
 	if p.Position.x != position.x {
+		return false
+	}
+
+	if !board.IsEmptyLine(p.Position, position) {
 		return false
 	}
 

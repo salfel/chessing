@@ -21,7 +21,7 @@ func (b *Bishop) GetPosition() Position {
 	return b.Position
 }
 
-func (b *Bishop) CanMove(position Position) bool {
+func (b *Bishop) CanMove(position Position, board *Board) bool {
 	return false
 }
 

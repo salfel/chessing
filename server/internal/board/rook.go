@@ -21,7 +21,7 @@ func (r *Rook) GetPosition() Position {
 	return r.Position
 }
 
-func (r *Rook) CanMove(position Position) bool {
+func (r *Rook) CanMove(position Position, board *Board) bool {
 	return false
 }
 

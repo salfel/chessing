@@ -29,7 +29,7 @@ func (s *Server) movePiece(message string, client *Client) {
 	found := false
 
 	for _, piece := range game.Board.Pieces {
-		if piece.CanMove(move.GetPosition()) && move.GetColor() == piece.GetColor() {
+		if piece.CanMove(move.GetPosition(), &game.Board) && move.GetColor() == piece.GetColor() {
 			piece.Move(move.GetPosition())
 			found = true
 		}

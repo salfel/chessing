@@ -13,6 +13,70 @@ func (b *Board) SwitchTurn() {
 	}
 }
 
+func (b *Board) FieldUsed(field Position) bool {
+	for _, piece := range b.Pieces {
+		if field == piece.GetPosition() {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (b *Board) HasEmptyFields(fields []Position) bool {
+	empty := true
+
+	for _, field := range fields {
+		for _, piece := range b.Pieces {
+			if piece.GetPosition() == field {
+				empty = false
+			}
+		}
+	}
+
+	return empty
+}
+
+func (b *Board) IsEmptyLine(current Position, destination Position) bool {
+	if current.x == destination.x {
+		min := min(current.y, destination.y)
+		max := max(current.y, destination.y)
+
+		fields := make([]Position, 0, max-min)
+
+		for i := min; i <= max; i++ {
+			field := Position{x: current.x, y: i}
+
+			if b.FieldUsed(field) && field != current {
+				fields = append(fields, field)
+			}
+		}
+
+		return len(fields) == 0
+	} else if current.y == destination.y {
+		min := min(current.x, destination.x)
+		max := max(current.x, destination.x)
+
+		fields := make([]Position, 0, max-min)
+
+		for i := min; i <= max; i++ {
+			field := Position{x: i, y: current.y}
+
+			if b.FieldUsed(field) && field != current {
+				fields = append(fields, field)
+			}
+		}
+
+		return len(fields) == 0
+	}
+
+	return false
+}
+
+func (b *Board) IsEmptyDiagonal() bool {
+	return false
+}
+
 func NewBoard() Board {
 	pieces := make([]Piece, 0, 32)
 
