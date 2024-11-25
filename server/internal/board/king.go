@@ -22,6 +22,17 @@ func (k *King) GetPosition() Position {
 }
 
 func (k *King) CanMove(position Position, board *Board) bool {
+	if board.FieldUsed(position) {
+		return false
+	}
+
+	xDiff := Abs(k.Position.x - position.x)
+	yDiff := Abs(k.Position.y - position.y)
+
+	if (xDiff == 1 && yDiff <= 1) || (yDiff == 1 && xDiff <= 1) {
+		return true
+	}
+
 	return false
 }
 
