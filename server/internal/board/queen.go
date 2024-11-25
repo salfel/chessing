@@ -22,7 +22,7 @@ func (q *Queen) GetPosition() Position {
 }
 
 func (q *Queen) CanMove(position Position, board *Board) bool {
-	return false
+	return board.IsEmptyDiagonal(q.Position, position) || board.IsEmptyLine(q.Position, position)
 }
 
 func (q *Queen) Move(position Position) {
