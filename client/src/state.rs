@@ -1,5 +1,6 @@
 use std::{collections::HashMap, fmt::Display};
 
+use crate::action::Action;
 use crate::piece::Piece;
 
 pub struct State {
@@ -9,6 +10,8 @@ pub struct State {
     pub turn: Color,
     pub status: Status,
     pub should_quit: bool,
+    pub current_action: Option<Action>,
+    pub input: String,
 }
 
 impl State {
@@ -20,6 +23,8 @@ impl State {
             turn: Color::White,
             status: Status::Waiting,
             should_quit: false,
+            current_action: None,
+            input: String::new(),
         }
     }
 

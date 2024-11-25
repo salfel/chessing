@@ -21,7 +21,9 @@ use tokio_tungstenite::{
 };
 
 use crate::{
+    action::{Action, Actions},
     board::Board,
+    input::Input,
     state::{Color, State, Status},
     stats::Stats,
 };
@@ -39,9 +41,9 @@ type SocketReader = futures_util::stream::Fuse<
 >;
 
 #[allow(dead_code)]
-struct SocketStream {
-    writer: SocketWriter,
-    reader: SocketReader,
+pub struct SocketStream {
+    pub writer: SocketWriter,
+    pub reader: SocketReader,
 }
 
 pub struct App {
@@ -90,12 +92,7 @@ impl App {
     async fn init_socket() -> SocketStream {
         let url = "ws://localhost:8000/game";
         let (ws_stream, _) = connect_async(url).await.expect("Failed to connect");
-        let (mut write, read) = ws_stream.split();
-
-        write
-            .send(Message::text("create game:  test"))
-            .await
-            .expect("Failed to send message");
+        let (write, read) = ws_stream.split();
 
         SocketStream {
             writer: write,
@@ -115,20 +112,48 @@ impl App {
     }
 
     fn draw(&self, frame: &mut Frame, state: &mut State) {
+        let base_layout = Layout::default()
+            .direction(Direction::Vertical)
+            .constraints(vec![Constraint::Min(1), Constraint::Length(1)])
+            .split(frame.area());
+
+        Actions::default().render(base_layout[1], frame.buffer_mut(), state);
+
         let layout = Layout::default()
             .direction(Direction::Horizontal)
             .constraints(vec![Constraint::Length(30), Constraint::Min(1)])
-            .split(frame.area());
+            .split(base_layout[0]);
 
         Board::default().render(layout[0], frame.buffer_mut(), state);
         Stats::default().render(layout[1], frame.buffer_mut(), state);
+
+        if let Some(action) = state.current_action {
+            Input::new(action.label()).render(frame.area(), frame.buffer_mut(), state);
+        }
     }
 
     async fn handle_event(&mut self, event: Event) {
         if let Event::Key(key) = event {
             if key.kind == KeyEventKind::Press {
+                let mut state = self.state.lock().await;
                 match key.code {
-                    KeyCode::Char('q') => self.state.lock().await.should_quit = true,
+                    KeyCode::Char(char) if state.current_action.is_some() => state.input.push(char),
+                    KeyCode::Backspace if state.current_action.is_some() => {
+                        state.input.pop();
+                    }
+                    KeyCode::Enter if state.current_action.is_some() => {
+                        if let Some(action) = state.current_action {
+                            action.execute(&mut state, &mut self.stream).await;
+                            state.current_action = None;
+                        }
+                    }
+
+                    KeyCode::Char('q') => state.should_quit = true,
+                    KeyCode::Char('c') => {
+                        Action::Creating.execute(&mut state, &mut self.stream).await
+                    }
+                    KeyCode::Char('j') => state.current_action = Some(Action::Joining),
+                    KeyCode::Esc => state.current_action = None,
                     _ => {}
                 }
             }

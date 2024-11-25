@@ -1,5 +1,7 @@
+mod action;
 mod app;
 mod board;
+mod input;
 mod piece;
 mod state;
 mod stats;
