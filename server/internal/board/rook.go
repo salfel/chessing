@@ -22,7 +22,7 @@ func (r *Rook) GetPosition() Position {
 }
 
 func (r *Rook) CanMove(position Position, board *Board) bool {
-	return false
+	return board.IsEmptyLine(r.Position, position)
 }
 
 func (r *Rook) Move(position Position) {
