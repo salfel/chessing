@@ -26,6 +26,10 @@ func (s *Server) movePiece(message string, client *Client) {
 	game := s.hub.clients[client]
 	move := parseMove(message, game.Board.Turn)
 
+	if game.Board.Turn == "white" && game.White != client || game.Board.Turn == "black" && game.Black != client {
+		return
+	}
+
 	found := false
 
 	for _, piece := range game.Board.Pieces {
