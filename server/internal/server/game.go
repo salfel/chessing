@@ -104,10 +104,11 @@ func (s *Server) joinGame(message string, client *Client) {
 func (s *Server) sendState(game *Game) {
 	pieces := map[string]map[string]string{}
 
-	for field, piece := range game.Board.pieces {
-		pieces[field.String()] = map[string]string{
-			"color":   piece.getColor(),
-			"variant": piece.getName(),
+	for _, piece := range game.Board.pieces {
+		position := piece.GetPosition()
+		pieces[position.String()] = map[string]string{
+			"color":   piece.GetColor(),
+			"variant": piece.GetName(),
 		}
 	}
 

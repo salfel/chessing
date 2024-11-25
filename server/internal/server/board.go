@@ -1,71 +1,47 @@
 package server
 
 import (
-	"fmt"
-	"strconv"
-	"strings"
+	. "chessing/internal/pieces"
 )
 
-func newField(position string) Field {
-	pos := strings.Split(position, "")
-
-	x := int(pos[0][0]) - int('a')
-	y, err := strconv.Atoi(pos[1])
-	if err != nil {
-		panic(fmt.Sprintf("could not convert to integer: %s", pos[1]))
-	}
-
-	return Field{x: x, y: y}
-}
-
-type Field struct {
-	x int
-	y int
-}
-
-func (f *Field) String() string {
-	return fmt.Sprintf("%c%d", byte('a'+f.x), f.y)
-}
-
 type Board struct {
-	pieces map[Field]Piece
+	pieces []Piece
 }
 
 func newBoard() Board {
-	pieces := make(map[Field]Piece)
+	pieces := make([]Piece, 32)
 
 	for i := range 8 {
-		field := Field{x: i, y: 2}
-		field = newField(string(byte('a'+i)) + "2")
-		pieces[field] = Pawn{color: "white"}
+		position := NewPosition(string(byte('a'+i)) + "2")
+		pieces = append(pieces, NewPawn("white", position))
 
-		field.y = 7
-		pieces[field] = Pawn{color: "black"}
+		position = NewPosition(string(byte('a'+i)) + "7")
+		pieces = append(pieces, NewPawn("black", position))
 	}
 
-	pieces[newField("a1")] = Rook{color: "white"}
-	pieces[newField("h1")] = Rook{color: "white"}
+	pieces = append(pieces, NewRook("white", NewPosition("a1")))
+	pieces = append(pieces, NewRook("white", NewPosition("h1")))
 
-	pieces[newField("a8")] = Rook{color: "black"}
-	pieces[newField("h8")] = Rook{color: "black"}
+	pieces = append(pieces, NewRook("black", NewPosition("a8")))
+	pieces = append(pieces, NewRook("black", NewPosition("h8")))
 
-	pieces[newField("b1")] = Knight{color: "white"}
-	pieces[newField("g1")] = Knight{color: "white"}
+	pieces = append(pieces, NewKnight("white", NewPosition("b1")))
+	pieces = append(pieces, NewKnight("white", NewPosition("g1")))
 
-	pieces[newField("b8")] = Knight{color: "black"}
-	pieces[newField("g8")] = Knight{color: "black"}
+	pieces = append(pieces, NewKnight("black", NewPosition("b8")))
+	pieces = append(pieces, NewKnight("black", NewPosition("g8")))
 
-	pieces[newField("c1")] = Bishop{color: "white"}
-	pieces[newField("f1")] = Bishop{color: "white"}
+	pieces = append(pieces, NewBishop("white", NewPosition("c1")))
+	pieces = append(pieces, NewBishop("white", NewPosition("f1")))
 
-	pieces[newField("c8")] = Bishop{color: "black"}
-	pieces[newField("f8")] = Bishop{color: "black"}
+	pieces = append(pieces, NewBishop("black", NewPosition("c8")))
+	pieces = append(pieces, NewBishop("black", NewPosition("f8")))
 
-	pieces[newField("d1")] = Queen{color: "white"}
-	pieces[newField("e1")] = King{color: "white"}
+	pieces = append(pieces, NewQueen("white", NewPosition("d1")))
+	pieces = append(pieces, NewKing("white", NewPosition("e1")))
 
-	pieces[newField("d8")] = Queen{color: "black"}
-	pieces[newField("e8")] = King{color: "black"}
+	pieces = append(pieces, NewQueen("black", NewPosition("d8")))
+	pieces = append(pieces, NewKing("black", NewPosition("e8")))
 
 	return Board{
 		pieces: pieces,
