@@ -22,7 +22,7 @@ func (b *Bishop) GetPosition() Position {
 }
 
 func (b *Bishop) CanMove(position Position, board *Board) bool {
-	return false
+	return board.IsEmptyDiagonal(b.Position, position)
 }
 
 func (b *Bishop) Move(position Position) {

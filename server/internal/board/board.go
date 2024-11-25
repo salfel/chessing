@@ -73,8 +73,39 @@ func (b *Board) IsEmptyLine(current Position, destination Position) bool {
 	return false
 }
 
-func (b *Board) IsEmptyDiagonal() bool {
-	return false
+func (b *Board) IsEmptyDiagonal(original Position, destination Position) bool {
+	if Abs(original.x-destination.x) != Abs(original.y-destination.y) {
+		return false
+	}
+
+	var xDiff, yDiff int
+
+	if original.x < destination.x {
+		xDiff = 1
+	} else {
+		xDiff = -1
+	}
+
+	if original.y < destination.y {
+		yDiff = 1
+	} else {
+		yDiff = -1
+	}
+
+	fields := make([]Position, 0, Abs(original.x-destination.x))
+
+	position := original
+
+	for position != destination {
+		position.x += xDiff
+		position.y += yDiff
+
+		if b.FieldUsed(position) {
+			fields = append(fields, position)
+		}
+	}
+
+	return len(fields) == 0
 }
 
 func NewBoard() Board {
@@ -115,5 +146,13 @@ func NewBoard() Board {
 	return Board{
 		Pieces: pieces,
 		Turn:   "white",
+	}
+}
+
+func Abs(x int) int {
+	if x < 0 {
+		return -x
+	} else {
+		return x
 	}
 }
