@@ -80,7 +80,7 @@ impl Position {
         let x = positions.next().expect("x position not present");
         let y = positions.next().expect("y position not present");
 
-        let x = (x as u16) - ('A' as u16) + 1;
+        let x = (x as u16) - ('a' as u16) + 1;
         let y = y.to_digit(10).expect("y position is not a integer") as u16;
 
         Position { x, y }

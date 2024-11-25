@@ -33,7 +33,7 @@ impl StatefulWidget for Board {
                         None => panic!("color is none"),
                     };
 
-                    let char = char::from_u32(x as u32 + 65).expect("Isn't a valid char");
+                    let char = char::from_u32(x as u32 + 97).expect("Isn't a valid char");
                     match state.get_piece(char, number) {
                         Some(char) => {
                             area.x += 1;

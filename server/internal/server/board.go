@@ -10,7 +10,7 @@ type Field struct {
 }
 
 func (f *Field) String() string {
-	return fmt.Sprintf("%c%d", byte('A'+f.x), f.y)
+	return fmt.Sprintf("%c%d", byte('a'+f.x), f.y)
 }
 
 type Board struct {
