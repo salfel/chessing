@@ -1,4 +1,4 @@
-package pieces
+package board
 
 type Queen struct {
 	Color    string

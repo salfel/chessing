@@ -1,4 +1,4 @@
-package pieces
+package board
 
 type Pawn struct {
 	Color    string

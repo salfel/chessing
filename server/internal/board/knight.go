@@ -1,4 +1,4 @@
-package pieces
+package board
 
 type Knight struct {
 	Color    string

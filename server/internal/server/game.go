@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	. "chessing/internal/board"
 )
 
 type Game struct {
@@ -25,7 +27,7 @@ func (c *Client) newGame() *Game {
 	random := rand.New(source)
 	randomValue := random.Intn(2)
 
-	game := Game{Board: newBoard()}
+	game := Game{Board: NewBoard()}
 
 	if randomValue == 0 {
 		game.White = c
@@ -108,7 +110,7 @@ func (s *Server) joinGame(message string, client *Client) {
 func (s *Server) sendState(game *Game) {
 	pieces := map[string]map[string]string{}
 
-	for _, piece := range game.Board.pieces {
+	for _, piece := range game.Board.Pieces {
 		position := piece.GetPosition()
 		pieces[position.String()] = map[string]string{
 			"color":   piece.GetColor(),

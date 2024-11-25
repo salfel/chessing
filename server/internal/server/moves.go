@@ -1,7 +1,7 @@
 package server
 
 import (
-	. "chessing/internal/pieces"
+	. "chessing/internal/board"
 	"fmt"
 )
 
@@ -24,11 +24,11 @@ func parseMove(move string, color string) Piece {
 
 func (s *Server) movePiece(message string, client *Client) {
 	game := s.hub.clients[client]
-	move := parseMove(message, game.Board.turn)
+	move := parseMove(message, game.Board.Turn)
 
 	found := false
 
-	for _, piece := range game.Board.pieces {
+	for _, piece := range game.Board.Pieces {
 		if piece.CanMove(move.GetPosition()) && move.GetColor() == piece.GetColor() {
 			piece.Move(move.GetPosition())
 			found = true
@@ -37,7 +37,7 @@ func (s *Server) movePiece(message string, client *Client) {
 
 	if found {
 		s.sendState(game)
-		game.Board.switchTurn()
-		game.send(fmt.Sprintf("turn: %s", game.Board.turn))
+		game.Board.SwitchTurn()
+		game.send(fmt.Sprintf("turn: %s", game.Board.Turn))
 	}
 }

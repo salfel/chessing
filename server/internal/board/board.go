@@ -1,42 +1,19 @@
-package server
-
-import (
-	. "chessing/internal/pieces"
-)
+package board
 
 type Board struct {
-	pieces []Piece
-	turn   string
+	Pieces []Piece
+	Turn   string
 }
 
-func (b *Board) getPiece(position Position) (int, Piece, bool) {
-	for i, piece := range b.pieces {
-		if piece.GetPosition() == position {
-			return i, piece, true
-		}
-	}
-
-	return 0, nil, false
-}
-
-func (b *Board) removePiece(position Position) {
-	i, _, ok := b.getPiece(position)
-	if !ok {
-		return
-	}
-
-	b.pieces = append(b.pieces[:i], b.pieces[i+1:]...)
-}
-
-func (b *Board) switchTurn() {
-	if b.turn == "white" {
-		b.turn = "black"
-	} else if b.turn == "black" {
-		b.turn = "white"
+func (b *Board) SwitchTurn() {
+	if b.Turn == "white" {
+		b.Turn = "black"
+	} else if b.Turn == "black" {
+		b.Turn = "white"
 	}
 }
 
-func newBoard() Board {
+func NewBoard() Board {
 	pieces := make([]Piece, 0, 32)
 
 	for i := range 8 {
@@ -72,7 +49,7 @@ func newBoard() Board {
 	pieces = append(pieces, NewKing("black", NewPosition("e8")))
 
 	return Board{
-		pieces: pieces,
-		turn:   "white",
+		Pieces: pieces,
+		Turn:   "white",
 	}
 }

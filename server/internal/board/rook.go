@@ -1,4 +1,4 @@
-package pieces
+package board
 
 type Rook struct {
 	Color    string
