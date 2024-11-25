@@ -1,5 +1,9 @@
 package board
 
+import (
+	"math"
+)
+
 type Knight struct {
 	Color    string
 	Position Position
@@ -22,6 +26,13 @@ func (k *Knight) GetPosition() Position {
 }
 
 func (k *Knight) CanMove(position Position, board *Board) bool {
+	xDiff := int(math.Abs(float64(k.Position.x - position.x)))
+	yDiff := int(math.Abs(float64(k.Position.y - position.y)))
+
+	if (xDiff == 2 && yDiff == 1) || (xDiff == 1 && yDiff == 2) && !board.FieldUsed(position) {
+		return true
+	}
+
 	return false
 }
 
