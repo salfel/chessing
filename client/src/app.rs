@@ -172,6 +172,7 @@ impl App {
             "state" => state.parse_pieces(details),
             "color" => state.color = Some(Color::new(details)),
             "code" => state.code = details.to_string(),
+            "turn" => state.turn = Color::new(details),
             "opponent left game" => {
                 state.status = Status::Leaving;
 

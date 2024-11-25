@@ -11,6 +11,7 @@ type Piece interface {
 	GetName() string
 	GetPosition() Position
 	CanMove(Position) bool
+	Move(Position)
 }
 
 func NewPosition(position string) Position {

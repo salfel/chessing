@@ -98,6 +98,10 @@ func (s *Server) joinGame(message string, client *Client) {
 
 	s.hub.clients[client] = game
 
+	game.White.send <- "color: white"
+	game.Black.send <- "color: black"
+	game.send("starting:")
+
 	s.sendState(game)
 }
 
@@ -117,11 +121,6 @@ func (s *Server) sendState(game *Game) {
 		fmt.Println(err)
 		return
 	}
-
-	game.send("starting:")
-
-	game.White.send <- "color: white"
-	game.Black.send <- "color: black"
 
 	game.send(fmt.Sprintf("state: %s", jsonPieces))
 }

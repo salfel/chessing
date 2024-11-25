@@ -5,34 +5,39 @@ import (
 	"fmt"
 )
 
-func parseMove(move string, color string) (Piece, Position) {
-	var piece Piece
-
-	fmt.Println(move)
-
+func parseMove(move string, color string) Piece {
 	switch move[0] {
 	case 'R':
-		piece = Rook{Color: color}
+		return NewRook(color, NewPosition(move[1:]))
 	case 'N':
-		piece = Knight{Color: color}
+		return NewKnight(color, NewPosition(move[1:]))
 	case 'B':
-		piece = Bishop{Color: color}
+		return NewBishop(color, NewPosition(move[1:]))
 	case 'Q':
-		piece = Queen{Color: color}
+		return NewQueen(color, NewPosition(move[1:]))
 	case 'K':
-		piece = King{Color: color}
+		return NewKing(color, NewPosition(move[1:]))
 	default:
-		piece = Pawn{Color: color}
-		return piece, NewPosition(move)
+		return NewPawn(color, NewPosition(move))
 	}
-
-	position := NewPosition(move[1:])
-
-	return piece, position
 }
 
 func (s *Server) movePiece(message string, client *Client) {
-	piece, field := parseMove(message, "white")
+	game := s.hub.clients[client]
+	move := parseMove(message, game.Board.turn)
 
-	client.send <- fmt.Sprint(piece.GetName(), piece, field)
+	found := false
+
+	for _, piece := range game.Board.pieces {
+		if piece.CanMove(move.GetPosition()) && move.GetColor() == piece.GetColor() {
+			piece.Move(move.GetPosition())
+			found = true
+		}
+	}
+
+	if found {
+		s.sendState(game)
+		game.Board.switchTurn()
+		game.send(fmt.Sprintf("turn: %s", game.Board.turn))
+	}
 }

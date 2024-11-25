@@ -5,22 +5,26 @@ type Queen struct {
 	Position Position
 }
 
-func NewQueen(color string, position Position) Queen {
-	return Queen{Color: color, Position: position}
+func NewQueen(color string, position Position) *Queen {
+	return &Queen{Color: color, Position: position}
 }
 
-func (q Queen) GetColor() string {
+func (q *Queen) GetColor() string {
 	return q.Color
 }
 
-func (q Queen) GetName() string {
+func (q *Queen) GetName() string {
 	return "queen"
 }
 
-func (q Queen) GetPosition() Position {
+func (q *Queen) GetPosition() Position {
 	return q.Position
 }
 
-func (q Queen) CanMove(position Position) bool {
-	return true
+func (q *Queen) CanMove(position Position) bool {
+	return false
+}
+
+func (q *Queen) Move(position Position) {
+	q.Position = position
 }

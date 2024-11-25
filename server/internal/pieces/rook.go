@@ -5,22 +5,26 @@ type Rook struct {
 	Position Position
 }
 
-func NewRook(color string, position Position) Rook {
-	return Rook{Color: color, Position: position}
+func NewRook(color string, position Position) *Rook {
+	return &Rook{Color: color, Position: position}
 }
 
-func (r Rook) GetColor() string {
+func (r *Rook) GetColor() string {
 	return r.Color
 }
 
-func (r Rook) GetName() string {
+func (r *Rook) GetName() string {
 	return "rook"
 }
 
-func (r Rook) GetPosition() Position {
+func (r *Rook) GetPosition() Position {
 	return r.Position
 }
 
-func (r Rook) CanMove(position Position) bool {
-	return true
+func (r *Rook) CanMove(position Position) bool {
+	return false
+}
+
+func (r *Rook) Move(position Position) {
+	r.Position = position
 }

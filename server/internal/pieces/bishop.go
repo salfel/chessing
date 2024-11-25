@@ -5,22 +5,26 @@ type Bishop struct {
 	Position Position
 }
 
-func NewBishop(color string, position Position) Bishop {
-	return Bishop{Color: color, Position: position}
+func NewBishop(color string, position Position) *Bishop {
+	return &Bishop{Color: color, Position: position}
 }
 
-func (b Bishop) GetColor() string {
+func (b *Bishop) GetColor() string {
 	return b.Color
 }
 
-func (b Bishop) GetName() string {
+func (b *Bishop) GetName() string {
 	return "bishop"
 }
 
-func (b Bishop) GetPosition() Position {
+func (b *Bishop) GetPosition() Position {
 	return b.Position
 }
 
-func (b Bishop) CanMove(position Position) bool {
-	return true
+func (b *Bishop) CanMove(position Position) bool {
+	return false
+}
+
+func (b *Bishop) Move(position Position) {
+	b.Position = position
 }

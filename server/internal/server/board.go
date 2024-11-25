@@ -6,10 +6,38 @@ import (
 
 type Board struct {
 	pieces []Piece
+	turn   string
+}
+
+func (b *Board) getPiece(position Position) (int, Piece, bool) {
+	for i, piece := range b.pieces {
+		if piece.GetPosition() == position {
+			return i, piece, true
+		}
+	}
+
+	return 0, nil, false
+}
+
+func (b *Board) removePiece(position Position) {
+	i, _, ok := b.getPiece(position)
+	if !ok {
+		return
+	}
+
+	b.pieces = append(b.pieces[:i], b.pieces[i+1:]...)
+}
+
+func (b *Board) switchTurn() {
+	if b.turn == "white" {
+		b.turn = "black"
+	} else if b.turn == "black" {
+		b.turn = "white"
+	}
 }
 
 func newBoard() Board {
-	pieces := make([]Piece, 32)
+	pieces := make([]Piece, 0, 32)
 
 	for i := range 8 {
 		position := NewPosition(string(byte('a'+i)) + "2")
@@ -45,5 +73,6 @@ func newBoard() Board {
 
 	return Board{
 		pieces: pieces,
+		turn:   "white",
 	}
 }

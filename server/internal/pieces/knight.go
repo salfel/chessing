@@ -5,22 +5,26 @@ type Knight struct {
 	Position Position
 }
 
-func NewKnight(color string, position Position) Knight {
-	return Knight{Color: color, Position: position}
+func NewKnight(color string, position Position) *Knight {
+	return &Knight{Color: color, Position: position}
 }
 
-func (k Knight) GetColor() string {
+func (k *Knight) GetColor() string {
 	return k.Color
 }
 
-func (k Knight) GetName() string {
+func (k *Knight) GetName() string {
 	return "knight"
 }
 
-func (k Knight) GetPosition() Position {
+func (k *Knight) GetPosition() Position {
 	return k.Position
 }
 
-func (k Knight) CanMove(position Position) bool {
-	return true
+func (k *Knight) CanMove(position Position) bool {
+	return false
+}
+
+func (k *Knight) Move(position Position) {
+	k.Position = position
 }
