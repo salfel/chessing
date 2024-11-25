@@ -2,7 +2,21 @@ package server
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 )
+
+func newField(position string) Field {
+	pos := strings.Split(position, "")
+
+	x := int(pos[0][0]) - int('a')
+	y, err := strconv.Atoi(pos[1])
+	if err != nil {
+		panic(fmt.Sprintf("could not convert to integer: %s", pos[1]))
+	}
+
+	return Field{x: x, y: y}
+}
 
 type Field struct {
 	x int
@@ -22,35 +36,36 @@ func newBoard() Board {
 
 	for i := range 8 {
 		field := Field{x: i, y: 2}
+		field = newField(string(byte('a'+i)) + "2")
 		pieces[field] = Pawn{color: "white"}
 
 		field.y = 7
 		pieces[field] = Pawn{color: "black"}
 	}
 
-	pieces[Field{x: 0, y: 1}] = Rook{color: "white"}
-	pieces[Field{x: 7, y: 1}] = Rook{color: "white"}
+	pieces[newField("a1")] = Rook{color: "white"}
+	pieces[newField("h1")] = Rook{color: "white"}
 
-	pieces[Field{x: 0, y: 8}] = Rook{color: "black"}
-	pieces[Field{x: 7, y: 8}] = Rook{color: "black"}
+	pieces[newField("a8")] = Rook{color: "black"}
+	pieces[newField("h8")] = Rook{color: "black"}
 
-	pieces[Field{x: 1, y: 1}] = Knight{color: "white"}
-	pieces[Field{x: 6, y: 1}] = Knight{color: "white"}
+	pieces[newField("b1")] = Knight{color: "white"}
+	pieces[newField("g1")] = Knight{color: "white"}
 
-	pieces[Field{x: 1, y: 8}] = Knight{color: "black"}
-	pieces[Field{x: 6, y: 8}] = Knight{color: "black"}
+	pieces[newField("b8")] = Knight{color: "black"}
+	pieces[newField("g8")] = Knight{color: "black"}
 
-	pieces[Field{x: 2, y: 1}] = Bishop{color: "white"}
-	pieces[Field{x: 5, y: 1}] = Bishop{color: "white"}
+	pieces[newField("c1")] = Bishop{color: "white"}
+	pieces[newField("f1")] = Bishop{color: "white"}
 
-	pieces[Field{x: 2, y: 8}] = Bishop{color: "black"}
-	pieces[Field{x: 5, y: 8}] = Bishop{color: "black"}
+	pieces[newField("c8")] = Bishop{color: "black"}
+	pieces[newField("f8")] = Bishop{color: "black"}
 
-	pieces[Field{x: 3, y: 1}] = Queen{color: "white"}
-	pieces[Field{x: 4, y: 1}] = King{color: "white"}
+	pieces[newField("d1")] = Queen{color: "white"}
+	pieces[newField("e1")] = King{color: "white"}
 
-	pieces[Field{x: 3, y: 8}] = Queen{color: "black"}
-	pieces[Field{x: 4, y: 8}] = King{color: "black"}
+	pieces[newField("d8")] = Queen{color: "black"}
+	pieces[newField("e8")] = King{color: "black"}
 
 	return Board{
 		pieces: pieces,
