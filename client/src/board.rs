@@ -28,8 +28,8 @@ impl StatefulWidget for Board {
 
                 if state.status != Status::Waiting {
                     let number = match state.color {
-                        Some(Color::Black) => 8 - y,
-                        Some(Color::White) => y + 1,
+                        Some(Color::White) => 8 - y,
+                        Some(Color::Black) => y + 1,
                         None => panic!("color is none"),
                     };
 

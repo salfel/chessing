@@ -1,20 +1,78 @@
 package server
 
-type Color string
+type Piece interface {
+	getColor() string
+	getName() string
+}
 
-const BLACK Color = Color("white")
-const WHITE Color = Color("black")
+type Pawn struct {
+	color string
+}
 
-type PieceVariant string
+func (p Pawn) getColor() string {
+	return p.color
+}
 
-const ROOK PieceVariant = PieceVariant("rook")
-const BISHOP PieceVariant = PieceVariant("bishop")
-const KNIGHT PieceVariant = PieceVariant("knight")
-const PAWN PieceVariant = PieceVariant("pawn")
-const KING PieceVariant = PieceVariant("king")
-const QUEEN PieceVariant = PieceVariant("queen")
+func (p Pawn) getName() string {
+	return "pawn"
+}
 
-type Piece struct {
-	color   Color
-	variant PieceVariant
+type Rook struct {
+	color string
+}
+
+func (r Rook) getColor() string {
+	return r.color
+}
+
+func (r Rook) getName() string {
+	return "rook"
+}
+
+type Bishop struct {
+	color string
+}
+
+func (b Bishop) getColor() string {
+	return b.color
+}
+
+func (b Bishop) getName() string {
+	return "bishop"
+}
+
+type Knight struct {
+	color string
+}
+
+func (k Knight) getColor() string {
+	return k.color
+}
+
+func (k Knight) getName() string {
+	return "knight"
+}
+
+type King struct {
+	color string
+}
+
+func (k King) getColor() string {
+	return k.color
+}
+
+func (k King) getName() string {
+	return "king"
+}
+
+type Queen struct {
+	color string
+}
+
+func (q Queen) getColor() string {
+	return q.color
+}
+
+func (q Queen) getName() string {
+	return "queen"
 }

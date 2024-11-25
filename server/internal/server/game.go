@@ -106,8 +106,8 @@ func (s *Server) sendState(game *Game) {
 
 	for field, piece := range game.Board.pieces {
 		pieces[field.String()] = map[string]string{
-			"color":   string(piece.color),
-			"variant": string(piece.variant),
+			"color":   piece.getColor(),
+			"variant": piece.getName(),
 		}
 	}
 

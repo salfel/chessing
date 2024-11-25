@@ -1,6 +1,8 @@
 package server
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Field struct {
 	x int
@@ -20,35 +22,35 @@ func newBoard() Board {
 
 	for i := range 8 {
 		field := Field{x: i, y: 2}
-		pieces[field] = Piece{color: WHITE, variant: PAWN}
+		pieces[field] = Pawn{color: "white"}
 
 		field.y = 7
-		pieces[field] = Piece{color: BLACK, variant: PAWN}
+		pieces[field] = Pawn{color: "black"}
 	}
 
-	pieces[Field{x: 0, y: 1}] = Piece{color: WHITE, variant: ROOK}
-	pieces[Field{x: 7, y: 1}] = Piece{color: WHITE, variant: ROOK}
+	pieces[Field{x: 0, y: 1}] = Rook{color: "white"}
+	pieces[Field{x: 7, y: 1}] = Rook{color: "white"}
 
-	pieces[Field{x: 0, y: 8}] = Piece{color: BLACK, variant: ROOK}
-	pieces[Field{x: 7, y: 8}] = Piece{color: BLACK, variant: ROOK}
+	pieces[Field{x: 0, y: 8}] = Rook{color: "black"}
+	pieces[Field{x: 7, y: 8}] = Rook{color: "black"}
 
-	pieces[Field{x: 1, y: 1}] = Piece{color: WHITE, variant: KNIGHT}
-	pieces[Field{x: 6, y: 1}] = Piece{color: WHITE, variant: KNIGHT}
+	pieces[Field{x: 1, y: 1}] = Knight{color: "white"}
+	pieces[Field{x: 6, y: 1}] = Knight{color: "white"}
 
-	pieces[Field{x: 1, y: 8}] = Piece{color: BLACK, variant: KNIGHT}
-	pieces[Field{x: 6, y: 8}] = Piece{color: BLACK, variant: KNIGHT}
+	pieces[Field{x: 1, y: 8}] = Knight{color: "black"}
+	pieces[Field{x: 6, y: 8}] = Knight{color: "black"}
 
-	pieces[Field{x: 2, y: 1}] = Piece{color: WHITE, variant: BISHOP}
-	pieces[Field{x: 5, y: 1}] = Piece{color: WHITE, variant: BISHOP}
+	pieces[Field{x: 2, y: 1}] = Bishop{color: "white"}
+	pieces[Field{x: 5, y: 1}] = Bishop{color: "white"}
 
-	pieces[Field{x: 2, y: 8}] = Piece{color: BLACK, variant: BISHOP}
-	pieces[Field{x: 5, y: 8}] = Piece{color: BLACK, variant: BISHOP}
+	pieces[Field{x: 2, y: 8}] = Bishop{color: "black"}
+	pieces[Field{x: 5, y: 8}] = Bishop{color: "black"}
 
-	pieces[Field{x: 3, y: 1}] = Piece{color: WHITE, variant: QUEEN}
-	pieces[Field{x: 4, y: 1}] = Piece{color: WHITE, variant: KING}
+	pieces[Field{x: 3, y: 1}] = Queen{color: "white"}
+	pieces[Field{x: 4, y: 1}] = King{color: "white"}
 
-	pieces[Field{x: 3, y: 8}] = Piece{color: BLACK, variant: QUEEN}
-	pieces[Field{x: 4, y: 8}] = Piece{color: BLACK, variant: KING}
+	pieces[Field{x: 3, y: 8}] = Queen{color: "black"}
+	pieces[Field{x: 4, y: 8}] = King{color: "black"}
 
 	return Board{
 		pieces: pieces,

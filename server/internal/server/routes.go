@@ -27,6 +27,7 @@ func (s *Server) RouteWebsockets(message Message) {
 
 	r.HandleFunc("create game: ", s.createGame)
 	r.HandleFunc("join game: ", s.joinGame)
+	r.HandleFunc("move piece: ", s.movePiece)
 }
 
 func (r *WebsocketRouter) HandleFunc(path string, handler WebsocketHandlerFunc) {
