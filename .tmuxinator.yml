@@ -12,4 +12,7 @@ windows:
   - server: 
     - cd server
     - air
-  - commands:
+  - client:
+    - cd client
+    - sleep 1
+    - cargo run
