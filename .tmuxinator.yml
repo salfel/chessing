@@ -1,0 +1,15 @@
+name: chessing
+root: ~/Code/chessing
+
+windows:
+  - editor-server: 
+    - cd server
+    - nvim
+  - editor-client:
+    - cd client
+    - nvim
+  - git: lazygit
+  - server: 
+    - cd server
+    - air
+  - commands:
