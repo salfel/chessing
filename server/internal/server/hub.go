@@ -32,7 +32,9 @@ func (h *Hub) run() {
 			h.clients[client] = nil
 		case client := <-h.unregister:
 			if _, ok := h.clients[client]; ok {
-				client.leaveGame(h.clients[client])
+				if h.clients[client] != nil {
+					client.leaveGame(h.clients[client])
+				}
 
 				delete(h.clients, client)
 				close(client.send)
