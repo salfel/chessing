@@ -2,10 +2,10 @@ name: chessing
 root: ~/Code/chessing
 
 windows:
-  - editor-server: 
+  - editor server: 
     - cd server
     - nvim
-  - editor-client:
+  - editor client:
     - cd client
     - nvim
   - git: lazygit
@@ -16,3 +16,4 @@ windows:
     - cd client
     - sleep 1
     - cargo run
+  - commands:
